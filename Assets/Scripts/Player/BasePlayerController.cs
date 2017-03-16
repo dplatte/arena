@@ -13,6 +13,7 @@ public class BasePlayerController : MonoBehaviour {
 
 	//Targeting variables
 	GameObject target;
+	TargetDummyController tdc;
 	GameObject[] possibleTargets;
 	List<GameObject> previouslySelectedTargets = new List<GameObject>();
 	int maxTargetAngle = 65;
@@ -81,7 +82,7 @@ public class BasePlayerController : MonoBehaviour {
 		}
 
 		if(Input.GetButtonDown("CastSpell")) {
-			castSpell(1);
+			beginSpellCast(1);
 		}
 
 		if(isSpellCasting) {
@@ -187,6 +188,7 @@ public class BasePlayerController : MonoBehaviour {
 
 		//Select new target
 		target.GetComponent<MeshRenderer>().material.color = Color.red;
+		tdc = target.GetComponent<TargetDummyController> ();
 	}
 
 	#endregion
@@ -210,9 +212,20 @@ public class BasePlayerController : MonoBehaviour {
 
 	#region Spellcasting
 
-	void castSpell(int spellID) {
-		isSpellCasting = true;
-		remainingCastTime = 2.0f;
+	void beginSpellCast(int spellID) {
+		if(target != null) {
+			isSpellCasting = true;
+			remainingCastTime = 2.0f;
+		} else {
+			Debug.Log("Select a target.");
+		}
+	}
+
+	void finishSpellCast() {
+		Debug.Log ("Spellcast Successful!");
+		TargetDummyController tdc = target.GetComponent<TargetDummyController>();
+		tdc.receiveDamage (10);
+		Debug.Log(tdc.CurHealth);
 	}
 
 	void updateRemainingSpellcastTime() {
@@ -222,6 +235,7 @@ public class BasePlayerController : MonoBehaviour {
 		} else {
 			if(remainingCastTime - Time.deltaTime < 0) {
 				remainingCastTime = 0;
+				finishSpellCast();
 			} else {
 				remainingCastTime -= Time.deltaTime;
 			}
@@ -233,6 +247,11 @@ public class BasePlayerController : MonoBehaviour {
 	#region GUI
 
 	void OnGUI() {
+
+		if (target != null) {
+			GUI.Box (new Rect (10, 50, 200, 25), "Target Health: " + tdc.CurHealth + "/" + tdc.BaseHealth);
+		}
+
 		if(isSpellCasting) {
 			GUIStyle defaultStyle = new GUIStyle(GUI.skin.box);
 			GUI.Box(new Rect(spellX, spellY, spellWidth, spellHeight), remainingCastTime.ToString(), defaultStyle);
