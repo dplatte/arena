@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using DigitalRuby.PyroParticles;
 
 public class MageClass : BaseClass {
 
@@ -13,28 +14,38 @@ public class MageClass : BaseClass {
 		maxPrimaryResource = 100;
 		curPrimaryResource = 100;
 		primaryResource = Resource.Mana;
-
-		abilities.Add (new Ability {
-			Name = "Frostbolt", 
-			Description = "Launch a missile of ice at an enemy.",
-			Range = 40, 
-			Power = 10, 
-			Cooldown = 0, 
-			CastTime = 2, 
-			School = School.Ice, 
-			ResourceCost = 10, 
-			ResourceGain = 0, 
-			Duration = 0, 
-			SpellType = SpellType.Damage, 
-			Area = Area.Single, 
-			Direction = Direction.Target
-		});
+	
 	}
 	
 	// Update is called once per frame
-	void Update ()
-	{
-	
+	void Update () {
+		if(Input.GetButtonDown("CastSpell")) {
+			Cast();
+		}
+	}
+
+
+	public override void Cast() {
+		Vector3 pos;
+		float yRot = transform.rotation.eulerAngles.y;
+		Vector3 forwardY = Quaternion.Euler(0.0f, yRot, 0.0f) * Vector3.forward;
+		Vector3 forward = transform.forward;
+		Vector3 right = transform.right;
+		Vector3 up = transform.up;
+		pos = transform.position + forward + right + up;
+		Quaternion rotation = Quaternion.identity;
+		GameObject spellPrefab = GameObject.Instantiate(abilities[0]);
+		FireBaseScript currentPrefabScript = spellPrefab.GetComponent<FireBaseScript>();
+
+		FireProjectileScript projectileScript = spellPrefab.GetComponentInChildren<FireProjectileScript>();
+		if (projectileScript != null)
+		{
+			// make sure we don't collide with other friendly layers
+			projectileScript.ProjectileCollisionLayers &= (~UnityEngine.LayerMask.NameToLayer("FriendlyLayer"));
+		}
+
+		spellPrefab.transform.position = pos;
+		spellPrefab.transform.rotation = rotation;
 	}
 }
 

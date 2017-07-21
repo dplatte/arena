@@ -81,13 +81,7 @@ public class BasePlayerController : MonoBehaviour {
 			selectEnemyTarget();
 		}
 
-		if(Input.GetButtonDown("CastSpell")) {
-			beginSpellCast(1);
-		}
 
-		if(isSpellCasting) {
-			updateRemainingSpellcastTime();
-		}
 			
 	}
 
